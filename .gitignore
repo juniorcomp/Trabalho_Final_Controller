@@ -1,0 +1,7 @@
+# Ignora arquivos de modelos 3D e materiais
+*.obj
+*.mtl
+
+# Ignora a pasta de objetos inteira
+objetos/
+assets/

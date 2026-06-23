@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controller Studio</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-main: #0a0a0c;
+      --bg-panel: rgba(18, 18, 22, 0.75);
+      --text-main: #ffffff;
+      --text-muted: #999999;
+      --border-color: rgba(255, 255, 255, 0.05);
+      --item-bg: rgba(0, 0, 0, 0.3);
+      --item-hover: rgba(0, 0, 0, 0.5);
+      --accent: #f33a6a;
+      --accent-alpha: rgba(243, 58, 106, 0.1);
+      --header-grad: linear-gradient(to bottom, rgba(10,10,12,0.9), transparent);
+    }
+
+    * { box-sizing: border-box; outline: none; margin: 0; padding: 0; }
+    
+    body { 
+      background: var(--bg-main); 
+      font-family: 'Poppins', sans-serif; 
+      color: var(--text-main);
+      overflow: hidden; 
+      height: 100vh; 
+      display: flex;
+    }
+
+    main { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+    #header {
+      position: absolute; top: 0; left: 0; width: 100%; padding: 25px 50px; z-index: 10;
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--header-grad);
+      transition: opacity 0.5s ease;
+    }
+    
+    .brand { font-weight: 700; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; }
+    .brand span { color: var(--accent); } 
+    
+    .nav-links { display: flex; gap: 30px; font-size: 14px; font-weight: 500; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; transition: 0.3s; cursor: pointer; padding-bottom: 5px; border-bottom: 2px solid transparent; }
+    .nav-links a:hover { color: var(--text-main); }
+    .nav-links a.active { color: var(--text-main); border-bottom: 2px solid var(--accent); }
+
+    .btn-header {
+      background: var(--accent-alpha); color: var(--accent);
+      border: 1px solid rgba(243, 58, 106, 0.3); border-radius: 30px;
+      padding: 8px 18px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; 
+      cursor: pointer; transition: all 0.3s ease; margin-left: 20px;
+    }
+    .btn-header:hover { background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(243, 58, 106, 0.4); }
+
+    #design-panel {
+      position: absolute; top: 0; right: 0; width: 480px; height: 100vh;
+      background: var(--bg-panel); backdrop-filter: blur(25px); z-index: 5; 
+      padding: 100px 40px 40px 40px; border-left: 1px solid var(--border-color);
+      display: flex; flex-direction: column; overflow-y: auto;
+      box-shadow: -15px 0 40px rgba(0,0,0,0.4); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    #design-panel.closed { transform: translateX(100%); }
+    #design-panel::-webkit-scrollbar { width: 0px; }
+
+    .category { text-transform: uppercase; font-size: 12px; font-weight: 600; letter-spacing: 2px; color: var(--accent); margin-bottom: 5px; }
+    h1 { font-size: 34px; font-weight: 700; line-height: 1.1; margin-bottom: 10px; }
+    .description { font-size: 13px; color: var(--text-muted); font-weight: 300; line-height: 1.6; margin-bottom: 20px; }
+    
+    .price-container { display: flex; align-items: baseline; gap: 8px; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+    .price-currency { font-size: 20px; color: var(--text-muted); font-weight: 500; }
+    .price-value { font-size: 36px; font-weight: 600; color: var(--text-main); }
+
+    .step-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+
+    .tab-content { display: none; animation: fadeIn 0.3s ease; border-top: 1px solid var(--border-color); padding-top: 25px; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .model-selector { display: flex; gap: 8px; margin-bottom: 30px; } 
+    .model-card { flex: 1; background: var(--item-bg); border: 2px solid transparent; border-radius: 12px; padding: 12px 4px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+    .model-card:hover { background: var(--item-hover); border-color: var(--border-color); }
+    .model-card.active { border-color: var(--accent); background: var(--accent-alpha); }
+    .model-name { font-size: 11px; font-weight: 600; color: var(--text-main); margin-top: 3px; white-space: nowrap; }
+    .model-brand { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .color-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 40px; }
+    .color-btn { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--bg-panel); cursor: pointer; transition: 0.2s; box-shadow: 0 0 0 1px var(--border-color); }
+    .color-btn:hover { transform: scale(1.1); }
+    .color-btn.active { box-shadow: 0 0 0 2px var(--accent), 0 0 15px rgba(243, 58, 106, 0.4); }
+
+    .upgrade-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; }
+    .upgrade-item { display: flex; justify-content: space-between; align-items: center; background: var(--item-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
+    .upgrade-item:hover { background: var(--item-hover); border-color: var(--text-muted); }
+    .up-info { display: flex; align-items: flex-start; gap: 12px; }
+    .up-info input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin-top: 2px; }
+    .up-text { display: flex; flex-direction: column; }
+    .up-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+    .up-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .up-price { font-size: 14px; color: var(--accent); font-weight: 700; white-space: nowrap; }
+
+    .simulador-box { background: var(--item-bg); border: 1px dashed var(--border-color); border-radius: 12px; padding: 25px 20px; text-align: center; margin-bottom: 20px; }
+    .simulador-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+    .simulador-status { font-weight: 600; color: var(--accent); margin-bottom: 5px; }
+    .simulador-hint { font-size: 12px; color: var(--text-muted); }
+
+    .btn-checkout {
+      background: var(--accent); color: #fff; border: none; border-radius: 30px;
+      padding: 20px; font-weight: 700; font-size: 15px; cursor: pointer; text-transform: uppercase; 
+      letter-spacing: 1.5px; transition: all 0.3s ease; margin-top: auto; width: 100%; 
+      box-shadow: 0 10px 20px rgba(243, 58, 106, 0.2);
+    }
+    .btn-checkout:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(243, 58, 106, 0.4); filter: brightness(1.1); }
+
+    #sucesso-overlay {
+      position: absolute; top: 15%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; z-index: 20; display: none; animation: fadeInDown 0.8s ease forwards;
+      pointer-events: none;
+    }
+    #sucesso-overlay h2 { font-size: 42px; color: var(--accent); text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 20px rgba(243, 58, 106, 0.5); margin-bottom: 10px; }
+    #sucesso-overlay p { font-size: 18px; color: #fff; font-weight: 300; }
+    @keyframes fadeInDown { from { opacity: 0; transform: translate(-50%, -80%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+
+    #btn-nova-compra {
+      display: none; position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); 
+      width: auto; padding: 15px 40px; z-index: 50; animation: fadeInBtn 1s ease 1s forwards; opacity: 0;
+    }
+    @keyframes fadeInBtn { to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div class="brand">Controller<span>Studio</span></div>
+    <div class="nav-links">
+      <a class="nav-btn active" onclick="abrirAba('tab-servicos', this)">Serviços</a>
+      <a class="nav-btn" onclick="abrirAba('tab-estudio', this)">Estúdio</a>
+      <a class="nav-btn" onclick="abrirAba('tab-simulador', this)">Simulador</a>
+      <button id="btn-toggle" class="btn-header" onclick="toggleUI()">👁️ Ocultar UI</button>
+    </div>
+  </div>
+
+  <div id="sucesso-overlay">
+    <h2>Compra Concluída!</h2>
+    <p id="sucesso-mensagem">O seu controle personalizado está sendo preparado.</p>
+  </div>
+
+  <div id="design-panel">
+    <div class="category" id="panel-category">Oficina do Controle</div>
+    <h1 id="product-title">Carregando...</h1>
+    <p class="description" id="panel-desc">Selecione o modelo e configure serviços de manutenção, peças de reposição ou personalize a estética do seu hardware.</p>
+    
+    <div class="price-container">
+      <span class="price-currency">R$</span>
+      <span class="price-value" id="price-display">0,00</span>
+    </div>
+
+    <div class="step-title">Modelo do Controle</div>
+    <div class="model-selector">
+      <div id="btn-xbox" class="model-card" onclick="mudarModelo('xbox')">
+        <div class="model-brand">Microsoft</div>
+        <div class="model-name">Xbox Core</div>
+      </div>
+      <div id="btn-ps5" class="model-card" onclick="mudarModelo('ps5')">
+        <div class="model-brand">Sony</div>
+        <div class="model-name">DualSense</div>
+      </div>
+      <div id="btn-joycons" class="model-card" onclick="mudarModelo('joy-cons')">
+        <div class="model-brand">Nintendo</div>
+        <div class="model-name">Joy-Cons</div>
+      </div>
+      <div id="btn-switchpro" class="model-card" onclick="mudarModelo('switch-pro')">
+        <div class="model-brand">Nintendo</div>
+        <div class="model-name">Switch Pro</div>
+      </div>
+    </div>
+
+    <div id="tab-servicos" class="tab-content active">
+      <div class="step-title">Reparos e Upgrades</div>
+      <div class="upgrade-list">
+        <label class="upgrade-item">
+          <div class="up-info">
+            <input type="checkbox" onchange="updatePrice(this, 120.00); window.estadoManutencaoGatilhos = this.checked;">
+            <div class="up-text">
+              <span class="up-name">Manutenção de Gatilhos</span>
+              <span class="up-desc">Troca de molas e limpeza de contatos</span>
+            </div>
+          </div>
+          <span class="up-price">+ R$120</span>
+        </label>
+        <label class="upgrade-item">
+          <div class="up-info">
+            <input type="checkbox" onchange="updatePrice(this, 85.00); window.estadoManutencaoAnalogicos = this.checked;">
+            <div class="up-text">
+              <span class="up-name">Troca de Analógicos</span>
+              <span class="up-desc">Instalação de sensores Hall Effect anti-drift</span>
+            </div>
+          </div>
+          <span class="up-price">+ R$85</span>
+        </label>
+        <label class="upgrade-item">
+          <div class="up-info">
+            <input type="checkbox" onchange="updatePrice(this, 60.00); window.estadoManutencaoBotoes = this.checked;">
+            <div class="up-text">
+              <span class="up-name">Reparo de Botões</span>
+              <span class="up-desc">Substituição das membranas de silicone</span>
+            </div>
+          </div>
+          <span class="up-price">+ R$60</span>
+        </label>
+      </div>
+    </div>
+
+    <div id="tab-estudio" class="tab-content">
+      <div id="color-picker-single">
+        <div class="step-title">Cor da Carcaça Principal (+ R$100 Custom)</div>
+        <div class="color-grid">
+          <div class="color-btn" style="background: #e6e6e6;" data-color="#e6e6e6" onclick="selectColor(this, 'all')"></div>
+          <div class="color-btn" style="background: #1c1c1c;" data-color="#1c1c1c" onclick="selectColor(this, 'all')"></div>
+          <div class="color-btn" style="background: #d62828;" data-color="#d62828" onclick="selectColor(this, 'all')"></div>
+          <div class="color-btn" style="background: #003049;" data-color="#003049" onclick="selectColor(this, 'all')"></div>
+          <div class="color-btn" style="background: #5a189a;" data-color="#5a189a" onclick="selectColor(this, 'all')"></div>
+          <div class="color-btn" style="background: #2a9d8f;" data-color="#2a9d8f" onclick="selectColor(this, 'all')"></div>
+          <div class="color-btn" style="background: #f4a261;" data-color="#f4a261" onclick="selectColor(this, 'all')"></div>
+          <div class="color-btn" style="background: #00bf28;" data-color="#00bf28" onclick="selectColor(this, 'all')"></div>
+          <div class="color-btn" style="background: #f4c542;" data-color="#f4c542" onclick="selectColor(this, 'all')"></div>
+        </div>
+      </div>
+
+      <div id="color-picker-dual" style="display: none;">
+        <div class="step-title">Joy-Con Esquerdo (+ R$100 Custom)</div>
+        <div class="color-grid" style="margin-bottom: 20px;">
+          <div class="color-btn" style="background: #00bef0;" data-color="#00bef0" onclick="selectColor(this, 'left')"></div>
+          <div class="color-btn" style="background: #1c1c1c;" data-color="#1c1c1c" onclick="selectColor(this, 'left')"></div>
+          <div class="color-btn" style="background: #e6e6e6;" data-color="#e6e6e6" onclick="selectColor(this, 'left')"></div>
+          <div class="color-btn" style="background: #ff3246;" data-color="#ff3246" onclick="selectColor(this, 'left')"></div>
+          <div class="color-btn" style="background: #00bf28;" data-color="#00bf28" onclick="selectColor(this, 'left')"></div>
+          <div class="color-btn" style="background: #f4c542;" data-color="#f4c542" onclick="selectColor(this, 'left')"></div>
+          <div class="color-btn" style="background: #5a189a;" data-color="#5a189a" onclick="selectColor(this, 'left')"></div>
+        </div>
+
+        <div class="step-title">Joy-Con Direito (+ R$100 Custom)</div>
+        <div class="color-grid">
+          <div class="color-btn" style="background: #ff3246;" data-color="#ff3246" onclick="selectColor(this, 'right')"></div>
+          <div class="color-btn" style="background: #1c1c1c;" data-color="#1c1c1c" onclick="selectColor(this, 'right')"></div>
+          <div class="color-btn" style="background: #e6e6e6;" data-color="#e6e6e6" onclick="selectColor(this, 'right')"></div>
+          <div class="color-btn" style="background: #00bef0;" data-color="#00bef0" onclick="selectColor(this, 'right')"></div>
+          <div class="color-btn" style="background: #00bf28;" data-color="#00bf28" onclick="selectColor(this, 'right')"></div>
+          <div class="color-btn" style="background: #f4c542;" data-color="#f4c542" onclick="selectColor(this, 'right')"></div>
+          <div class="color-btn" style="background: #5a189a;" data-color="#5a189a" onclick="selectColor(this, 'right')"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-simulador" class="tab-content">
+      <div class="simulador-box">
+        <span class="simulador-icon">🎮</span>
+        <div class="simulador-status" id="gp-status">Aguardando Conexão...</div>
+        <div class="simulador-hint">Conecte o seu controle via USB ou Bluetooth e pressione qualquer botão para iniciar a sincronização com o modelo 3D.</div>
+      </div>
+    </div>
+
+    <button class="btn-checkout" id="btn-action" onclick="handleAcaoPrincipal()">Finalizar Pedido</button>
+  </div>
+
+  <button id="btn-nova-compra" class="btn-checkout" onclick="novaCompra()">Realizar Nova Compra</button>
+  
+  <script src="simulador.js"></script>
+  
+  <script>
+    window.estadoManutencaoGatilhos = false;
+    window.estadoManutencaoAnalogicos = false;
+    window.estadoManutencaoBotoes = false;
+
+    let basePrice = 0.00;
+    let servicesPrice = 0;
+    let customColorPrice = 0;
+    let currentTotal = basePrice;
+    
+    let selectedColors = { single: '', left: '', right: '' };
+
+    const priceDisplay = document.getElementById('price-display');
+    const titleEl = document.getElementById('product-title');
+
+    const params = new URLSearchParams(window.location.search);
+    const controleAtual = params.get('ctrl') || 'xbox';
+
+    let scriptSrc = 'sketch.js';
+    let labelControle = 'DualSense PS5';
+    let activeCardId = 'btn-ps5';
+
+    if (controleAtual === 'xbox') {
+      labelControle = "Xbox Core"; activeCardId = 'btn-xbox'; scriptSrc = 'sketch_xbox.js'; selectedColors.single = '#1c1c1c'; 
+    } else if (controleAtual === 'joy-cons') {
+      labelControle = "Joy-Cons Switch"; activeCardId = 'btn-joycons'; scriptSrc = 'sketch_joy_cons.js';
+      selectedColors.left = '#00bef0'; selectedColors.right = '#ff3246';  
+    } else if (controleAtual === 'switch-pro') {
+      labelControle = "Switch Pro Controller"; activeCardId = 'btn-switchpro'; scriptSrc = 'sketch_switch_pro.js'; selectedColors.single = '#1c1c1c'; 
+    } else {
+      selectedColors.single = '#e6e6e6'; 
+    }
+
+    titleEl.innerText = labelControle;
+    document.getElementById(activeCardId).classList.add('active'); 
+    
+    if (controleAtual === 'joy-cons') {
+      document.getElementById('color-picker-single').style.display = 'none';
+      document.getElementById('color-picker-dual').style.display = 'block';
+      document.querySelectorAll('#color-picker-dual .color-grid')[0].querySelectorAll('.color-btn').forEach(b => { if(b.dataset.color === selectedColors.left) b.classList.add('active'); });
+      document.querySelectorAll('#color-picker-dual .color-grid')[1].querySelectorAll('.color-btn').forEach(b => { if(b.dataset.color === selectedColors.right) b.classList.add('active'); });
+    } else {
+      document.getElementById('color-picker-single').style.display = 'block';
+      document.getElementById('color-picker-dual').style.display = 'none';
+      document.querySelectorAll('#color-picker-single .color-btn').forEach(b => { if(b.dataset.color === selectedColors.single) b.classList.add('active'); });
+    }
+
+    recalculateTotal();
+
+    let script = document.createElement('script'); 
+    script.src = scriptSrc; 
+    document.body.appendChild(script);
+
+    function mudarModelo(modelo) { window.location.href = `?ctrl=${modelo}`; }
+
+    function updatePrice(checkbox, amount) {
+      if(checkbox.checked) servicesPrice += amount; else servicesPrice -= amount;
+      recalculateTotal();
+    }
+
+    function checkCustomColor() {
+      let isCustom = false;
+      if (controleAtual === 'ps5' && selectedColors.single !== '#e6e6e6') isCustom = true;
+      if (controleAtual === 'xbox' && selectedColors.single !== '#1c1c1c') isCustom = true;
+      if (controleAtual === 'switch-pro' && selectedColors.single !== '#1c1c1c') isCustom = true;
+      if (controleAtual === 'joy-cons') {
+        if (selectedColors.left !== '#00bef0' || selectedColors.right !== '#ff3246') isCustom = true;
+      }
+      customColorPrice = isCustom ? 100.00 : 0;
+      recalculateTotal();
+    }
+
+    function recalculateTotal() {
+      currentTotal = basePrice + servicesPrice + customColorPrice;
+      priceDisplay.innerText = currentTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function selectColor(btn, side) {
+      const grade = btn.parentElement;
+      grade.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      let corHex = btn.dataset.color || btn.style.backgroundColor;
+      
+      if (side === 'all') selectedColors.single = corHex;
+      else if (side === 'left') selectedColors.left = corHex;
+      else if (side === 'right') selectedColors.right = corHex;
+      
+      checkCustomColor();
+      
+      if (window.atualizarCorControle) window.atualizarCorControle(corHex, side);
+    }
+
+    function handleAcaoPrincipal() {
+      const btn = document.getElementById('btn-action');
+      if (btn.innerText === "Salvar Design") {
+        const panel = document.getElementById('design-panel');
+        if (!panel.classList.contains('closed')) toggleUI();
+      } else {
+        window.estadoManutencaoGatilhos = false;
+        window.estadoManutencaoAnalogicos = false;
+        window.estadoManutencaoBotoes = false;
+
+        document.getElementById('design-panel').style.display = 'none';
+        document.getElementById('header').style.opacity = '0';
+        setTimeout(() => document.getElementById('header').style.display = 'none', 500);
+
+        const msg = document.getElementById('sucesso-mensagem');
+        msg.innerText = "Total pago: R$ " + currentTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('sucesso-overlay').style.display = 'block';
+        document.getElementById('btn-nova-compra').style.display = 'block';
+
+        window.compraConcluida = true;
+      }
+    }
+
+    // A MUDANÇA ESTÁ AQUI: O botão redireciona de volta para a Index!
+    function novaCompra() { window.location.href = 'loja.html'; }
+
+    function abrirAba(tabId, elementoClicado) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      elementoClicado.classList.add('active');
+
+      const category = document.getElementById('panel-category');
+      const desc = document.getElementById('panel-desc');
+      const btnAction = document.getElementById('btn-action');
+
+      if (tabId === 'tab-servicos') {
+        category.innerText = "Oficina do Controle";
+        desc.innerText = "Selecione peças de reposição de alta performance ou agende serviços de manutenção.";
+        btnAction.innerText = "Finalizar Pedido"; btnAction.style.display = "block";
+      } else if (tabId === 'tab-estudio') {
+        category.innerText = "Estúdio de Design";
+        desc.innerText = "Customize a pintura e o acabamento da carcaça do controle em tempo real.";
+        btnAction.innerText = "Salvar Design"; btnAction.style.display = "block";
+      } else if (tabId === 'tab-simulador') {
+        category.innerText = "Digital Twin";
+        desc.innerText = "Teste a resposta do hardware. Mexa no controle físico e veja o modelo 3D reagir instantaneamente.";
+        btnAction.style.display = "none";
+      }
+    }
+
+    function toggleUI() {
+      const panel = document.getElementById('design-panel');
+      const btn = document.getElementById('btn-toggle');
+      panel.classList.toggle('closed');
+      btn.innerHTML = panel.classList.contains('closed') ? '⚙️ Mostrar UI' : '👁️ Ocultar UI';
+    }
+  </script>
+</body>
+</html>

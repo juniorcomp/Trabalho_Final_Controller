@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controller Studio - João Junior</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-main: #0a0a0c;
+      --text-main: #ffffff;
+      --text-muted: #999999;
+      --accent: #f33a6a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      background: radial-gradient(circle at center, #1a1a24 0%, var(--bg-main) 100%);
+      font-family: 'Poppins', sans-serif; 
+      color: var(--text-main);
+      min-height: 100vh; 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .landing-content {
+      max-width: 800px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .landing-content h1 { font-size: 46px; color: var(--text-main); margin-bottom: 10px; letter-spacing: 1px;}
+    .landing-content h1 span { color: var(--accent); }
+    .landing-content > p { color: var(--text-muted); font-size: 16px; line-height: 1.6; margin-bottom: 50px; font-weight: 300; }
+
+    /* Texto Acadêmico Limpo */
+    .academic-text {
+      text-align: left;
+      margin-bottom: 50px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.02);
+      padding: 40px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .academic-text h3 {
+      font-size: 15px;
+      color: var(--text-main);
+      margin-top: 25px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .academic-text h3:first-child { margin-top: 0; }
+    .academic-text p {
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+    .academic-text p:last-child { margin-bottom: 0; }
+
+    .landing-btns { display: flex; gap: 20px; justify-content: center; }
+    .btn-landing {
+      padding: 16px 40px; border-radius: 30px; font-weight: 600; cursor: pointer; 
+      transition: all 0.3s ease; text-decoration: none; font-size: 14px; display: inline-block;
+    }
+    .btn-entrar { background: var(--accent); color: #fff; border: none; box-shadow: 0 10px 20px rgba(243, 58, 106, 0.2); }
+    .btn-entrar:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(243, 58, 106, 0.4); }
+    .btn-github { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-github:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+  </style>
+</head>
+<body>
+
+  <div class="landing-content">
+    <h1>Controller<span>Studio</span> Gamer</h1>
+    <p>Bem-vindo ao Controller Studio. Nossa plataforma combina engenharia de hardware e customização avançada. Desenvolvemos um motor gráfico proprietário em WebGL que permite explorar, configurar e simular a manutenção de periféricos em um ambiente virtual de alta fidelidade e tempo real.</p>
+    <p>Para a disciplina de Computação Gráfica, foi realizado este simulador utilizando malhas geométricas para aplicar na prática conceitos de construção 3D e interação do usuário em uma loja virtual personalizável.</p>
+    <p>Abaixo estão as informações sobre a disciplina. Desça a página para acessar a loja.</p>
+    
+    <div class="academic-text">
+      <h3>Modelagem B-Rep & Catmull-Clark</h3>
+      <p>As carcaças dos controles foram modeladas utilizando matrizes estruturadas (B-Rep) e subdivididas processualmente através do algoritmo de Catmull-Clark para gerar limites de continuidade geométrica de alta fidelidade.</p>
+      
+      <h3>Iluminação & Shading</h3>
+      <p>Desenvolvimento de um motor de iluminação híbrido utilizando cálculos vetoriais manuais (Cross Product) para geração topológica de normais por face, integrado perfeitamente ao modelo de reflexão óptica de Blinn-Phong.</p>
+      
+      <h3>Grafos de Cena & Cinemática</h3>
+      <p>Organização hierárquica rigorosa usando pilhas de estado (push/pop) e transformações lineares no espaço (Translação e Rotação em Eixos) para animar componentes isolados no ambiente 3D.</p>
+      
+      <h3>Sinais & Animação Procedural</h3>
+      <p>Integração com periféricos reais via Gamepad API, aliada a algoritmos de Interpolação Linear (Lerp) que funcionam como filtros passa-baixas para gerar respostas mecânicas suaves e simulações de "visões explodidas" das peças durante a manutenção.</p>
+    </div>
+
+    <div class="landing-btns">
+      <a href="loja.html" class="btn-landing btn-entrar">Ir para a Loja</a>
+      <a href="https://github.com" target="_blank" class="btn-landing btn-github">Ir para o GitHub</a>
+    </div>
+  </div>
+
+</body>
+</html>
