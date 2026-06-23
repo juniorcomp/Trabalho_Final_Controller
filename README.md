@@ -9,6 +9,10 @@ O Controller Studio é um estúdio virtual onde você pode visualizar e interagi
 Você pode ver o projeto funcionando diretamente no seu navegador através do link:
 [Insira aqui o link do seu GitHub Pages, ex: https://juniorcomp.github.io/Trabalho_Final_Controller/]
 
+## NO P5
+Clique aqui para ver o projeto no p5
+[https://editor.p5js.org/jjcompest/sketches/6uLkMaxep]
+
 ## Como mexer no simulador
 Para interagir com o controle na tela, utilize os comandos abaixo:
 
